@@ -1,0 +1,6 @@
+<%-- 상품관리·쇼핑몰 공통 상단 메뉴. 포함하는 화면에서 c, spring 태그라이브러리와 navActive 변수를 선언한다. --%>
+<nav class="item-nav" aria-label="menu">
+	<a href="<c:url value='/shop/itemList.do'/>" class="${navActive == 'shop' ? 'active' : ''}"><spring:message code="menu.shop" /></a>
+	<a href="<c:url value='/item/egovItemList.do'/>" class="${navActive == 'item' ? 'active' : ''}"><spring:message code="menu.item" /></a>
+	<a href="<c:url value='/egovSampleList.do'/>"><spring:message code="menu.sample" /></a>
+</nav>
