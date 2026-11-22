@@ -1,0 +1,41 @@
+name: Security Scan
+on:
+  schedule:
+    - cron: '0 2 * * 1' # 2 AM every Monday
+  workflow_dispatch:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Droid CLI
+        run: |
+          curl -fsSL https://app.factory.ai/cli | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Run Security Scan
+        id: scan
+        env:
+          FACTORY_API_KEY: ${{ secrets.FACTORY_API_KEY }}
+        run: |
+          result=$(droid exec -o json "Scan for security vulnerabilities: hardcoded secrets, SQL injection, XSS, and known CVEs in dependencies")
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+      - name: Create Issue if Found
+        if: contains(steps.scan.outputs.result, 'vulnerability')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Security: Vulnerabilities Found',
+              body: process.env.RESULT,
+              labels: ['security']
+            });
+        env:
+          RESULT: ${{ steps.scan.outputs.result }}
