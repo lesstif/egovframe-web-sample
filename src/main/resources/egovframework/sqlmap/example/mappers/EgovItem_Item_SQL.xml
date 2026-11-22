@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.item.service.impl.ItemMapper">
+
+	<resultMap id="item" type="itemVO">
+		<id property="itemId" column="ITEM_ID"/>
+		<result property="itemName" column="ITEM_NAME"/>
+		<result property="categoryCode" column="CATEGORY_CODE"/>
+		<result property="price" column="PRICE"/>
+		<result property="salePrice" column="SALE_PRICE"/>
+		<result property="stockQty" column="STOCK_QTY"/>
+		<result property="statusCode" column="STATUS_CODE"/>
+		<result property="imageUrl" column="IMAGE_URL"/>
+		<result property="description" column="DESCRIPTION"/>
+		<result property="regUser" column="REG_USER"/>
+		<result property="regDate" column="REG_DATE"/>
+		<result property="updDate" column="UPD_DATE"/>
+	</resultMap>
+
+	<sql id="itemColumns">
+		ITEM_ID, ITEM_NAME, CATEGORY_CODE, PRICE, SALE_PRICE, STOCK_QTY, STATUS_CODE,
+		IMAGE_URL, DESCRIPTION, REG_USER, REG_DATE, UPD_DATE
+	</sql>
+
+	<sql id="searchWhere">
+		WHERE 1=1
+		<if test="displayOnly">
+			AND STATUS_CODE &lt;&gt; 'STOP'
+		</if>
+		<if test="searchCategory != null and searchCategory != ''">
+			AND CATEGORY_CODE = #{searchCategory}
+		</if>
+		<if test="searchStatus != null and searchStatus != ''">
+			AND STATUS_CODE = #{searchStatus}
+		</if>
+		<if test="searchKeyword != null and searchKeyword != ''">
+			<choose>
+				<when test='searchCondition == "id"'>
+					AND ITEM_ID LIKE '%' || #{searchKeyword} || '%'
+				</when>
+				<otherwise>
+					AND LOWER(ITEM_NAME) LIKE '%' || LOWER(#{searchKeyword}) || '%'
+				</otherwise>
+			</choose>
+		</if>
+	</sql>
+
+	<insert id="insertItem" parameterType="itemVO">
+		INSERT INTO ITEM
+			( ITEM_ID, ITEM_NAME, CATEGORY_CODE, PRICE, SALE_PRICE, STOCK_QTY, STATUS_CODE,
+			  IMAGE_URL, DESCRIPTION, REG_USER, REG_DATE )
+		VALUES
+			( #{itemId}, #{itemName}, #{categoryCode}, #{price}, #{salePrice, jdbcType=INTEGER}, #{stockQty}, #{statusCode},
+			  #{imageUrl, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{regUser}, CURRENT_TIMESTAMP )
+	</insert>
+
+	<update id="updateItem" parameterType="itemVO">
+		UPDATE ITEM
+		SET ITEM_NAME = #{itemName}
+			, CATEGORY_CODE = #{categoryCode}
+			, PRICE = #{price}
+			, SALE_PRICE = #{salePrice, jdbcType=INTEGER}
+			, STOCK_QTY = #{stockQty}
+			, STATUS_CODE = #{statusCode}
+			, IMAGE_URL = #{imageUrl, jdbcType=VARCHAR}
+			, DESCRIPTION = #{description, jdbcType=VARCHAR}
+			, UPD_DATE = CURRENT_TIMESTAMP
+		WHERE ITEM_ID = #{itemId}
+	</update>
+
+	<delete id="deleteItem" parameterType="itemVO">
+		DELETE FROM ITEM
+		WHERE ITEM_ID = #{itemId}
+	</delete>
+
+	<select id="selectItem" parameterType="itemVO" resultMap="item">
+		SELECT <include refid="itemColumns"/>
+		FROM ITEM
+		WHERE ITEM_ID = #{itemId}
+	</select>
+
+	<select id="selectItemList" parameterType="egovframework.example.item.service.ItemDefaultVO" resultMap="item">
+		SELECT <include refid="itemColumns"/>
+		FROM ITEM
+		<include refid="searchWhere"/>
+		<choose>
+			<when test='sortOrder == "priceAsc"'>
+				ORDER BY COALESCE(SALE_PRICE, PRICE) ASC, ITEM_ID DESC
+			</when>
+			<when test='sortOrder == "priceDesc"'>
+				ORDER BY COALESCE(SALE_PRICE, PRICE) DESC, ITEM_ID DESC
+			</when>
+			<when test='sortOrder == "name"'>
+				ORDER BY ITEM_NAME ASC, ITEM_ID DESC
+			</when>
+			<otherwise>
+				ORDER BY REG_DATE DESC, ITEM_ID DESC
+			</otherwise>
+		</choose>
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectItemListTotCnt" parameterType="egovframework.example.item.service.ItemDefaultVO" resultType="int">
+		SELECT COUNT(*) totcnt
+		FROM ITEM
+		<include refid="searchWhere"/>
+	</select>
+
+</mapper>

@@ -310,3 +310,28 @@ function validateSampleVO(form) {
     };
     return EgovValidation.validateForm(form, rules);
 }
+
+function validateItemVO(form) {
+    const rules = {
+        itemName: { label: '상품명', rules: { required: true, maxlength: 100 } },
+        categoryCode: { label: '카테고리', rules: { required: true } },
+        statusCode: { label: '판매상태', rules: { required: true } },
+        price: { label: '정가', rules: { required: true, integer: true } },
+        salePrice: { label: '할인가', rules: { integer: true } },
+        stockQty: { label: '재고수량', rules: { required: true, integer: true } },
+        imageUrl: { label: '이미지 URL', rules: { maxlength: 500 } },
+        description: { label: '상품설명', rules: { maxlength: 2000 } },
+        regUser: { label: '등록자', rules: { required: true, maxlength: 10 } }
+    };
+    if (!EgovValidation.validateForm(form, rules)) {
+        return false;
+    }
+    const price = parseInt(form.elements['price'].value, 10);
+    const salePriceValue = form.elements['salePrice'].value;
+    if (salePriceValue !== '' && parseInt(salePriceValue, 10) > price) {
+        alert('할인가는 정가보다 클 수 없습니다.');
+        form.elements['salePrice'].focus();
+        return false;
+    }
+    return true;
+}
