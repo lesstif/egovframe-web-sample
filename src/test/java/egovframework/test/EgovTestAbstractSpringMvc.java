@@ -122,9 +122,10 @@ public class EgovTestAbstractSpringMvc {
 			if (log.isDebugEnabled()) {
 				log.debug("length={}", beanDefinitionNames.length);
 			}
-
-			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		}
+
+		// beanDefinitionNames 는 static 이라 JVM 에서 한 번만 채워지지만 mockMvc 는 테스트 인스턴스마다 필요하다.
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 	}
 
 	/**

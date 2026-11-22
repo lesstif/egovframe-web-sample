@@ -28,6 +28,17 @@
 
 ![regist](https://github.com/user-attachments/assets/b58cd205-131b-409f-9de8-62a83bd8029c)
 
+## 상품관리(쇼핑몰) 예제
+
+게시판과 같은 계층 구조(VO → Mapper → Service → Controller → JSP)로 만든 상품관리 예제가 함께 들어 있다. 데이터는 `db/itemdb.sql` 의 HSQLDB 메모리 테이블(ITEM)에 시드된다.
+
+| 화면 | URL | 내용 |
+| :--- | :--- | :--- |
+| 쇼핑몰 상품 목록 | `/shop/itemList.do` | 카테고리 탭, 검색, 정렬, 할인율·품절 표시 (판매중지 상품은 노출하지 않음) |
+| 쇼핑몰 상품 상세 | `/shop/itemDetail.do?itemId=ITEM-00001` | 가격, 재고, 설명 |
+| 상품관리 목록 | `/item/egovItemList.do` | 카테고리·판매상태 필터, 상품명/ID 검색, 정렬, 페이징 |
+| 상품 등록·수정·삭제 | 상품관리 목록에서 진입 | 할인가 ≤ 정가 검증, 재고 0 인 판매중 상품은 자동 품절 |
+
 ## 프로젝트 실행
 
 1. eclipse 하단의 Servers 탭을 클릭하고, 마우스 우클릭하여 **New > Server** 를 선택하여 서버를 설치한다.
